@@ -1,0 +1,40 @@
+---
+- name: keep my dev snow instance alive
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  collections:
+    - servicenow.itsm
+  vars:
+    snow_username: "{{ lookup('env', 'SNOW_USERNAME') }}"
+    snow_password: "{{ lookup('env', 'SNOW_PASSWORD') }}"
+    snow_instance: "{{ lookup('env', 'SNOW_PDI_DNS_HOST') }}"
+    snow_caller_id: admin
+
+  tasks:
+    - name: Create an incident
+      servicenow.itsm.incident:
+        instance:
+          host: "{{ snow_instance }}"
+          username: "{{ snow_username }}"
+          password: "{{ snow_password }}"
+        state: new
+        caller: "{{ snow_caller_id }}"
+        short_description: "Keep Alive Ticket"
+        description: "Keep Alive Ticket"
+        impact: low
+        urgency: low
+      register: new_incident
+
+    - set_fact:
+        ticket_number: "{{ new_incident.record.number }}"
+
+    - name: Delete the keepalive incident
+      servicenow.itsm.incident:
+        instance:
+          host: "{{ snow_instance }}"
+          username: "{{ snow_username }}"
+          password: "{{ snow_password }}"
+
+        state: absent
+        number: "{{ ticket_number }}"

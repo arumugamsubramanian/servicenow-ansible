@@ -1,0 +1,31 @@
+name: Keep PDI Alive
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+  
+jobs:
+  run:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v3
+
+    - name: Print Ansible Version
+      run: ansible --version
+
+    - name: Run Ansible Playbook
+      run: |
+        ansible-galaxy collection install -r requirements.yml
+        ansible-playbook -i inventory.yml servicenow-pdi-keepalive.yml
+      env:
+        SNOW_USERNAME: ${{ secrets.SNOW_USERNAME }}
+        SNOW_PASSWORD: ${{ secrets.SNOW_PASSWORD }}
+        SNOW_PDI_DNS_HOST: ${{ secrets.SNOW_PDI_DNS_HOST }}
