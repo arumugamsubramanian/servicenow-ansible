@@ -1,4 +1,4 @@
-name: Keep PDI Alive - snow-dev226167-prod-system-personal-email
+name: Keep PROD PDI Alive - snow-dev226167-prod-system-personal-email
 
 on:
   push:
